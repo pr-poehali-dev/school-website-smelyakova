@@ -2,10 +2,18 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('hero');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+  const { toast } = useToast();
 
   const achievements = [
     {
@@ -104,6 +112,20 @@ const Index = () => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+      title: 'Сообщение отправлено!',
+      description: 'Мы свяжемся с вами в ближайшее время.',
+    });
+    setDialogOpen(false);
+    setFormData({ name: '', email: '', phone: '', message: '' });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
@@ -378,7 +400,7 @@ const Index = () => {
             </Card>
           </div>
           <div className="mt-12 text-center">
-            <Button size="lg" className="bg-secondary hover:bg-secondary/90">
+            <Button size="lg" className="bg-secondary hover:bg-secondary/90" onClick={() => setDialogOpen(true)}>
               <Icon name="Send" size={20} className="mr-2" />
               Записаться на приём
             </Button>
@@ -427,6 +449,74 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-2xl text-primary">Обратная связь</DialogTitle>
+            <DialogDescription>
+              Заполните форму, и мы свяжемся с вами в ближайшее время
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Имя *</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Иван Иванов"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="ivan@example.com"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Телефон</Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                placeholder="+7 (999) 123-45-67"
+                value={formData.phone}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="message">Сообщение *</Label>
+              <Textarea
+                id="message"
+                name="message"
+                placeholder="Опишите ваш вопрос или запрос..."
+                value={formData.message}
+                onChange={handleInputChange}
+                rows={5}
+                required
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" className="flex-1 bg-secondary hover:bg-secondary/90">
+                <Icon name="Send" size={18} className="mr-2" />
+                Отправить
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                Отмена
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
